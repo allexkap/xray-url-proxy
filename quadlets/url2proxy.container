@@ -1,0 +1,19 @@
+[Unit]
+Description=URL2Proxy HTTP and SOCKS5 proxy
+
+[Container]
+Image=url2proxy.build
+Pull=never
+ContainerName=url2proxy
+Secret=url2proxy-subscription,type=env,target=SUBSCRIPTION_URL
+PublishPort=127.0.0.1:7890:7890/tcp
+ReadOnly=true
+Tmpfs=/run/mihomo:rw,noexec,nosuid,nodev,size=64m,mode=0700,U
+DropCapability=all
+NoNewPrivileges=true
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

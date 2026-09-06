@@ -1,30 +1,19 @@
 #!/bin/sh
+set -eu
+umask 077
 
-if [ -z "$1" ]; then
-    echo "Usage: docker run -dp <port>:8080 allexkap/xray-url-proxy <url>"
-    echo "Extra: --rm --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges"
-    exit 1
-fi
+: "${SUBSCRIPTION_URL:=}"
+case "$SUBSCRIPTION_URL" in
+  http://?*|https://?*) ;;
+  *) echo 'SUBSCRIPTION_URL must be an HTTP(S) subscription URL' >&2; exit 1 ;;
+esac
+case "$SUBSCRIPTION_URL" in
+  *[[:space:][:cntrl:]]*) echo 'SUBSCRIPTION_URL must be one URL without whitespace' >&2; exit 1 ;;
+esac
 
-Xray-Link-Json "$1" 2> /dev/null | jq \
-'{
-  log: { loglevel: "warning" },
-  inbounds: [
-    {
-      listen: "0.0.0.0",
-      port: 8080,
-      protocol: "http"
-    }
-  ],
-  outbounds: (
-    .outbounds | map(
-      if has("sendThrough") then
-        .tag = .sendThrough | del(.sendThrough)
-      else
-        .
-      end
-    )
-  )
-}' > /tmp/config.json
+envsubst '$SUBSCRIPTION_URL' \
+  < /etc/mihomo/config.yaml \
+  > /run/mihomo/config.yaml
+unset SUBSCRIPTION_URL
 
-exec xray run -c /tmp/config.json
+exec mihomo -d /run/mihomo -f /run/mihomo/config.yaml "$@"

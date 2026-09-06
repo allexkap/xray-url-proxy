@@ -1,0 +1,10 @@
+[Unit]
+Description=Build the URL2Proxy image
+
+[Build]
+ImageTag=localhost/url2proxy:latest
+File=%h/.local/share/url2proxy/Containerfile
+SetWorkingDirectory=file
+
+[Service]
+TimeoutStartSec=900

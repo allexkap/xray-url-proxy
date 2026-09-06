@@ -1,0 +1,23 @@
+mixed-port: 7890
+allow-lan: true
+
+proxy-groups:
+  - name: AUTO
+    type: url-test
+    use: [subscription]
+    empty-fallback: REJECT
+    tolerance: 50
+
+rules:
+  - MATCH,AUTO
+
+proxy-providers:
+  subscription:
+    type: http
+    url: ${SUBSCRIPTION_URL}
+    interval: 14400
+    proxy: DIRECT
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
