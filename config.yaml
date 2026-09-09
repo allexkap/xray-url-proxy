@@ -19,5 +19,6 @@ proxy-providers:
     proxy: DIRECT
     health-check:
       enable: true
+      lazy: false
       url: https://www.gstatic.com/generate_204
       interval: 300
